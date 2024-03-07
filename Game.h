@@ -24,6 +24,7 @@ namespace ApplesGame {
 		randomAppleCount = 1, // то же самое что и 1 << 0
 		infiniteApple = 1 << 1,
 		acceleratePlayer = 1 << 2,
+		Max = 7 // Максимальная маска = 7 (000, 001, 010, 100, 101, 110, 111)
 	};
 
 	struct Game {

@@ -163,14 +163,12 @@ namespace ApplesGame {
 
 	void DrawStartScreen(Game& game, sf::RenderWindow& window)
 	{
-		const int txtCount = 3;
-		float textRigthBorder;
-		float textCenter;
-		std::string txtArr[txtCount]{
-			"PRESS 1. Random dumbbell count (1-20)",
-			"PRESS 2. Finite number of apples",
-			"PRESS 3. Acceleration after lifting the weight"
-		};
+		float textRigthBorder, textCenter;
+
+		std::string txtArr[GameSettingsBits::Max];
+		txtArr[GameSettingsBits::randomAppleCount] = "PRESS 1. Random dumbbell count (1-20)";
+		txtArr[GameSettingsBits::infiniteApple] = "PRESS 2. Finite number of apples";
+		txtArr[GameSettingsBits::acceleratePlayer] = "PRESS 3. Acceleration after lifting the weight";
 
 		game.UI.text.setFillColor(sf::Color::White);
 
@@ -186,15 +184,17 @@ namespace ApplesGame {
 		game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.6f));
 		window.draw(game.UI.text);
 
-		for (int i = 0; i < txtCount; i++)
+		int loops = 0;
+		int i = 1;
+		while (i < GameSettingsBits::Max)
 		{
 			game.UI.text.setString(txtArr[i]);
 			game.UI.text.setOrigin(game.UI.text.getGlobalBounds().width / 2.f, game.UI.text.getGlobalBounds().height / 2.f);
-			game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * (0.7f + i * 0.1f)));
+			game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * (0.7f + loops * 0.1f)));
 			textRigthBorder = game.UI.text.getPosition().x + game.UI.text.getGlobalBounds().width * 0.5f + 32;
 			textCenter = game.UI.text.getPosition().y;
 			game.UI.checkBox.setPosition(sf::Vector2f(textRigthBorder, textCenter));
-			if (game.gameMode & 1 << i)
+			if (game.gameMode & 1 << loops)
 			{
 				game.UI.checkBox.setFillColor(sf::Color(255, 255, 255));
 			}
@@ -204,6 +204,8 @@ namespace ApplesGame {
 			}
 			window.draw(game.UI.checkBox);
 			window.draw(game.UI.text);
+			i = i << 1;
+			loops += 1;
 		}
 	}
 
