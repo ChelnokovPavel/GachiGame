@@ -20,13 +20,12 @@ namespace ApplesGame {
 		{
 			InitRock(game.rocks[i], game.resource);
 		}
-
 	}
 
 	void RestartGame(Game& game)
 	{
 		// init apples
-		if (game.GameModeBitMask & 1) game.numApples = rand() % NUM_APPLES + 1;
+		if (HasGameSetting(game, GameSettingsBits::randomAppleCount)) game.numApples = rand() % NUM_APPLES + 1;
 		else  game.numApples = NUM_APPLES;
 
 		Apple* apples = new Apple[game.numApples];
@@ -120,7 +119,7 @@ namespace ApplesGame {
 				{
 					game.numEatenApples++;
 					game.eatSound.play();
-					if (game.GameModeBitMask & 1 << 1)
+					if (HasGameSetting(game, GameSettingsBits::infiniteApple))
 					{
 						game.apples[i].position = Position{-255, -255};
 						game.apples[i].shape.setPosition(game.apples[i].position.x, game.apples[i].position.y);
@@ -136,7 +135,7 @@ namespace ApplesGame {
 						game.apples[i].position = GetGameObjectPosition(game);
 						game.apples[i].shape.setPosition(game.apples[i].position.x, game.apples[i].position.y);
 					}
-					if (game.GameModeBitMask & 1 << 2) game.player.playerSpeed += 15;
+					if (HasGameSetting(game, GameSettingsBits::acceleratePlayer)) game.player.playerSpeed += 15;
 				}
 			}
 		}
@@ -164,14 +163,12 @@ namespace ApplesGame {
 
 	void DrawStartScreen(Game& game, sf::RenderWindow& window)
 	{
-		const int txtCount = 3;
-		float textRigthBorder;
-		float textCenter;
-		std::string txtArr[txtCount]{
-			"PRESS 1. Random dumbbell count (1-20)",
-			"PRESS 2. Finite number of apples",
-			"PRESS 3. Acceleration after lifting the weight"
-		};
+		float textRigthBorder, textCenter;
+
+		std::string txtArr[GameSettingsBits::Max];
+		txtArr[GameSettingsBits::randomAppleCount] = "PRESS 1. Random dumbbell count (1-20)";
+		txtArr[GameSettingsBits::infiniteApple] = "PRESS 2. Finite number of apples";
+		txtArr[GameSettingsBits::acceleratePlayer] = "PRESS 3. Acceleration after lifting the weight";
 
 		game.UI.text.setFillColor(sf::Color::White);
 
@@ -187,15 +184,17 @@ namespace ApplesGame {
 		game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.6f));
 		window.draw(game.UI.text);
 
-		for (int i = 0; i < txtCount; i++)
+		int loops = 0;
+		int i = 1;
+		while (i < GameSettingsBits::Max)
 		{
 			game.UI.text.setString(txtArr[i]);
 			game.UI.text.setOrigin(game.UI.text.getGlobalBounds().width / 2.f, game.UI.text.getGlobalBounds().height / 2.f);
-			game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * (0.7f + i * 0.1f)));
+			game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * (0.7f + loops * 0.1f)));
 			textRigthBorder = game.UI.text.getPosition().x + game.UI.text.getGlobalBounds().width * 0.5f + 32;
 			textCenter = game.UI.text.getPosition().y;
 			game.UI.checkBox.setPosition(sf::Vector2f(textRigthBorder, textCenter));
-			if (game.GameModeBitMask & 1 << i)
+			if (game.gameMode & 1 << loops)
 			{
 				game.UI.checkBox.setFillColor(sf::Color(255, 255, 255));
 			}
@@ -205,6 +204,8 @@ namespace ApplesGame {
 			}
 			window.draw(game.UI.checkBox);
 			window.draw(game.UI.text);
+			i = i << 1;
+			loops += 1;
 		}
 	}
 
@@ -212,7 +213,7 @@ namespace ApplesGame {
 	{
 		window.draw(game.UI.infoPanel);
 		std::string txt;
-		if (game.GameModeBitMask & 1 << 1) txt = "Left: " + std::to_string(game.numApples - game.numEatenApples);
+		if (HasGameSetting(game, GameSettingsBits::infiniteApple)) txt = "Left: " + std::to_string(game.numApples - game.numEatenApples);
 		else txt = "Gym score: " + std::to_string(game.numEatenApples);
 		game.UI.text.setString(txt);
 		game.UI.text.setFillColor(sf::Color::Black);
@@ -289,18 +290,15 @@ namespace ApplesGame {
 			{
 				if (event.key.code == sf::Keyboard::Num1)
 				{
-					if (game.GameModeBitMask & 1) game.GameModeBitMask = game.GameModeBitMask & ~1;
-					else game.GameModeBitMask = game.GameModeBitMask | 1;
+					SwitchGameSetting(game, GameSettingsBits::randomAppleCount);
 				}
 				else if (event.key.code == sf::Keyboard::Num2)
 				{
-					if (game.GameModeBitMask & (1 << 1)) game.GameModeBitMask = game.GameModeBitMask & ~(1 << 1);
-					else game.GameModeBitMask = game.GameModeBitMask | 1 << 1;
+					SwitchGameSetting(game, GameSettingsBits::infiniteApple);
 				}
 				else if (event.key.code == sf::Keyboard::Num3)
 				{
-					if (game.GameModeBitMask & (1 << 2)) game.GameModeBitMask = game.GameModeBitMask & ~(1 << 2);
-					else game.GameModeBitMask = game.GameModeBitMask | 1 << 2;
+					SwitchGameSetting(game, GameSettingsBits::acceleratePlayer);
 
 				}
 				else if (event.key.code == sf::Keyboard::Space)
@@ -329,7 +327,6 @@ namespace ApplesGame {
 
 	Position GetGameObjectPosition(const Game& game)
 	{
-
 		bool wasCollision;
 		float maxSize = std::max({ PLAYER_SIZE, APPLE_SIZE, ROCK_SIZE });
 		Position position;
@@ -365,6 +362,19 @@ namespace ApplesGame {
 				}
 			}
 		}
+	}
+
+	// Проверка значений
+	bool HasGameSetting(Game& game, int setting)
+	{
+		return game.gameMode & setting;
+	}
+
+	// Смена значения на противоположное
+
+	void SwitchGameSetting(Game& game, int setting)
+	{
+		game.gameMode = game.gameMode ^ setting;
 	}
 
 }

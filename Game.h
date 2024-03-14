@@ -19,9 +19,17 @@ namespace ApplesGame {
 		GameOver = 2
 	};
 
+	enum GameSettingsBits {
+		defaultGameMode = 0,
+		randomAppleCount = 1, // то же самое что и 1 << 0
+		infiniteApple = 1 << 1,
+		acceleratePlayer = 1 << 2,
+		Max = 7 // Максимальная маска = 7 (000, 001, 010, 100, 101, 110, 111)
+	};
+
 	struct Game {
 		GameState state;
-		int GameModeBitMask = 0;
+		int gameMode = GameSettingsBits::defaultGameMode;
 		int numEatenApples = 0;
 		int numApples = 0;
 		const int numRocks = NUM_ROCKS;
@@ -44,5 +52,7 @@ namespace ApplesGame {
 	void DrawGameOver(Game& game, sf::RenderWindow& window);
 	void HandleInput(Game& game, sf::RenderWindow& window);
 	Position GetGameObjectPosition(const Game& game);
+	bool HasGameSetting(Game& game, int setting);
+	void SwitchGameSetting(Game& game, int setting);
 
 }
