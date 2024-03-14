@@ -92,6 +92,8 @@ namespace ApplesGame {
 			if (CheckBorderCollision(game.player.position, PLAYER_SIZE))
 			{
 				delete[] game.apples;
+				RefreshPlayerScore(game);
+				SortScoreboard(game.resource->scores, game.resource->names);
 				game.state = GameOver;
 				game.collisionSound.play();
 				game.resource->music.stop();
@@ -105,6 +107,8 @@ namespace ApplesGame {
 				))
 				{
 					delete[] game.apples;
+					RefreshPlayerScore(game);
+					SortScoreboard(game.resource->scores, game.resource->names);
 					game.state = GameOver;
 					game.collisionSound.play();
 					game.resource->music.stop();
@@ -238,7 +242,8 @@ namespace ApplesGame {
 			window.draw(game.apples[i].shape);
 		}
 	}
-
+	
+	/*
 	void DrawGameOver(Game& game, sf::RenderWindow& window)
 	{
 		window.draw(game.UI.gameOverScreen);
@@ -254,7 +259,42 @@ namespace ApplesGame {
 		game.UI.text.setOrigin(game.UI.text.getGlobalBounds().width / 2.f, game.UI.text.getGlobalBounds().height / 2.f);
 		game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT * 0.6f));
 		window.draw(game.UI.text);
-	}	
+	}
+	*/
+
+	void DrawGameOver(Game& game, sf::RenderWindow& window)
+	{
+		window.draw(game.UI.gameOverScreen);
+
+		game.UI.text.setFillColor(sf::Color::White);
+		game.UI.text.setOutlineThickness(1.f);
+
+		game.UI.text.setString("Scoreboard:");
+		game.UI.text.setOrigin(game.UI.text.getGlobalBounds().width / 2.f, game.UI.text.getGlobalBounds().height / 2.f);
+		game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH / 2.f, 50.f));
+		window.draw(game.UI.text);
+
+		for (int i = 0; i < SCOREBOARD_SIZE; i++)
+		{
+			game.UI.text.setString(game.resource->names[i] + ": " + std::to_string(game.resource->scores[i]));
+			game.UI.text.setOrigin(game.UI.text.getGlobalBounds().width / 2.f, game.UI.text.getGlobalBounds().height / 2.f);
+			game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH / 2.f, 50.f * (i + 2)));
+			window.draw(game.UI.text);
+		}
+
+
+		game.UI.text.setString("GAME OVER!");
+		game.UI.text.setOrigin(game.UI.text.getGlobalBounds().width / 2.f, game.UI.text.getGlobalBounds().height / 2.f);
+		game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH / 2.f, 50.f * (SCOREBOARD_SIZE + 3)));
+		window.draw(game.UI.text);
+
+		game.UI.text.setString("PRESS \"SPACE\" TO RESTART OR \"ENTER\" TO EXIT THE START SCREEN");
+		game.UI.text.setOrigin(game.UI.text.getGlobalBounds().width / 2.f, game.UI.text.getGlobalBounds().height / 2.f);
+		game.UI.text.setPosition(sf::Vector2f(SCREEN_WIDTH / 2.f, 50.f * (SCOREBOARD_SIZE + 4)));
+		window.draw(game.UI.text);
+
+		game.UI.text.setOutlineThickness(0.f);
+	}
 
 	void HandleInput(Game& game, sf::RenderWindow& window)
 	{
@@ -375,6 +415,14 @@ namespace ApplesGame {
 	void SwitchGameSetting(Game& game, int setting)
 	{
 		game.gameMode = game.gameMode ^ setting;
+	}
+
+	void RefreshPlayerScore(Game& game)
+	{
+		for (int i = 0; i < SCOREBOARD_SIZE; i++)
+		{
+			if (game.resource->names[i] == "Player" and game.resource->scores[i] < game.numEatenApples) game.resource->scores[i] = game.numEatenApples;
+		}
 	}
 
 }

@@ -20,6 +20,42 @@ namespace ApplesGame {
 
 		// Шрифты
 		assert(resource->font.loadFromFile(RESOURCES_PATH + "Fonts/Roboto-Black.ttf"));
+
+		// Массивы имен и очков
+		resource->names = CreateNamesArr();
+		int* scores = new int[SCOREBOARD_SIZE];
+		for (int i = 0; i < SCOREBOARD_SIZE - 1; i++)
+		{
+			scores[i] = rand() % 200;
+		}
+		scores[SCOREBOARD_SIZE - 1] = 0;
+		resource->scores = scores;
+	}
+
+	std::string* CreateNamesArr(int readRowCount)
+	{
+		std::ifstream file(RESOURCES_PATH + "names.txt");
+		std::string* readFile = new std::string[readRowCount];
+		std::string* namesArr = new std::string[SCOREBOARD_SIZE];
+		for (int i = 0; i < readRowCount; i++)
+		{
+			getline(file, readFile[i]);
+		}
+		file.close();
+		int* rndArr = new int[SCOREBOARD_SIZE - 1];
+		for (int i = 0; i < SCOREBOARD_SIZE - 1; i++)
+		{
+			rndArr[i] = rand() % readRowCount;
+		}
+		std::sort(rndArr, rndArr + SCOREBOARD_SIZE - 1);
+		for (int i = 0; i < SCOREBOARD_SIZE - 1; i++)
+		{
+			namesArr[i] = readFile[rndArr[i]];
+		}
+		namesArr[SCOREBOARD_SIZE - 1] = "Player";
+		delete[] readFile;
+		delete[] rndArr;
+		return namesArr;
 	}
 
 }

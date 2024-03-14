@@ -1,11 +1,15 @@
 #pragma once
 #include "Settings.h"
+#include <fstream>
+#include <string>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
 namespace ApplesGame {
 
 	struct Resource {
+		int* scores;
+		std::string* names;
 		sf::Texture playerTexture;
 		sf::Texture appleTexture;
 		sf::Texture rockTexture;
@@ -19,5 +23,6 @@ namespace ApplesGame {
 	};
 
 	void InitResource(Resource* resource);
+	std::string* CreateNamesArr(int readRowCount = 2000);
 
 }
