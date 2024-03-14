@@ -54,5 +54,6 @@ namespace ApplesGame {
 	Position GetGameObjectPosition(const Game& game);
 	bool HasGameSetting(Game& game, int setting);
 	void SwitchGameSetting(Game& game, int setting);
+	void RefreshPlayerScore(Game& game);
 
 }

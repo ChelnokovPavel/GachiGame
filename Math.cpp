@@ -80,4 +80,24 @@ namespace ApplesGame {
 		return false;
 	}
 
+	void SortScoreboard(int* scores, std::string* names)
+	{
+		int length = SCOREBOARD_SIZE - 1;
+		while (true)
+		{
+			bool swapped = false;
+			for (int i = 0; i < length; i++)
+			{
+				if (scores[i] < scores[i + 1])
+				{
+					std::swap(scores[i], scores[i + 1]);
+					std::swap(names[i], names[i + 1]);
+					swapped = true;
+				}
+			}
+			if (swapped == false)
+				break;
+		}
+	}
+
 }

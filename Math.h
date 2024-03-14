@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace ApplesGame
 {
@@ -32,5 +33,6 @@ namespace ApplesGame {
 	bool IsTherePlayerNearby(const Position position, float maxGameObjectSize, const Player player);
 	bool IsThereAppleNearby(const Position position, float maxGameObjectSize, const Apple apple);
 	bool IsThereRockNearby(const Position position, float maxGameObjectSize, const Rock rock);
+	void SortScoreboard(int* scores, std::string* names);
 
 }
